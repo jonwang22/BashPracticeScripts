@@ -9,5 +9,5 @@ if [[ -d "$DIR" ]]; then
       echo "Directory $DIR exists in the current directory."
 else
       echo "$DIR does not exist. Creating 'backup' directory in current directory."
-      mkdir backup
+      mkdir $DIR
 fi      
