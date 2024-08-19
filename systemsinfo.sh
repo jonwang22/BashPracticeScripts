@@ -38,22 +38,28 @@ function cpu_info () {
 function mem_info () {
 	mem_unused=$(free -m | grep Mem | awk '{print $4}')
 	mem_total=$(free -m | grep Mem | awk '{print $2}')
-	echo "There is $mem_unused Mebibytes of unused memory of out of the total $mem_total Mebibytes of memory."
+	echo "There is $mem_unused Mebibytes of unused memory of out of the total $mem_total Mebibytes of memory on your system."
 }
 
 # For top 5 memory, we'll need to figure out the ps aux options to use to create a table output of processes sorted by memory usage. pmem, pid, cmd. There should be a formatting solution with in the ps command with the different options. We'll pair that with head to grab the top 5.
 function top_mem_processes () {
-	echo "holding top mem"
+	echo "Here are the top 5 processes using memory right now."
+	echo ""
+	ps -eo pmem,pid,cmd --sort pmem | sort -r | head -6
 }
 
 # For top 5 cpu, we'll need to do the same as memory but sort it based on CPU usage so our columns displayed will change from pmem to pcpu most likely or some equivalent showing the cpu usage. We'll use sort and head here for top 5.
 function top_cpu_processes () {
-	echo "holding top cpu"
+	echo "Here are the top 5 processes with the most CPU Utilization right now."
+	echo " "
+	ps -eo pcpu,pid,cmd --sort pcpu | sort -r | head -6
 }
 
 # For Network Connectivity, we grab user input for website or IP address and assign it to a variable. use that variable in ping command, grab the output which should be the last line of the ping output and just output that. Not sure if we need to use redirection or not. Will need to refamiliarize myself with the output format.
 function network_connect () {
-	echo "holding network"
+	echo "Please enter the website you want to check or the IP Address."
+	read website
+	ping $website -c 10
 }
 
 
@@ -68,6 +74,12 @@ echo""
 cpu_info
 echo""
 mem_info
+echo""
+top_mem_processes
+echo""
+top_cpu_processes
+echo""
+network_connect
 
 # First we need a prompt that displays the menu of selections.
 
