@@ -59,26 +59,15 @@ function top_cpu_processes () {
 function network_connect () {
 	echo "Please enter the website you want to check or the IP Address."
 	read website
-	ping $website -c 10
+	echo "Please wait, checking connection..."
+	ping_output=$(ping $website -c 10)
+	packet_loss=$(echo "$ping_output" | grep -i "packet loss" | awk -F "," '{gsub(/^ */, "", $3); print $3}')
+	time=$(echo "$ping_output" | tail -1 | awk -F "/" '{print $5}')
+	echo "It took $time ms to connect to '$website' and there was $packet_loss."
 }
 
 
 ### WILL DELETE LATER, TESTING FUNCTIONS FOR NOW.
-echo""
-echo""
-echo""
-check_ip
-echo""
-check_user
-echo""
-cpu_info
-echo""
-mem_info
-echo""
-top_mem_processes
-echo""
-top_cpu_processes
-echo""
 network_connect
 
 # First we need a prompt that displays the menu of selections.
