@@ -150,24 +150,26 @@ while true; do
 			exit 0;;
 		*)
 			echo "Sorry, I don't know that action, please select an option from the menu provided."
+			continue
 	esac
 	echo ""
         while true; do
 	        echo "Do you want to check another system resource? (yes/no)"
                 read check_again
-
-                if [[ $check_again == "yes" || $check_again == "y" ]];
-                then
-                        break
-                elif [[ $check_again == "no" || $check_again == "n" ]];
-                then
-                        echo ""
-			echo "Have a great day! Goodbye!"
-                        echo ""
-			exit 0
-                else
-			echo "Invalid input. Please enter yes/y or no/n."
-			echo ""
-                fi
+		
+		case $check_again in
+        		YES|Yes|yes|y)
+				echo ""
+            			break;;
+        		NO|No|no|n)
+			        echo ""
+            			echo "Have a great day! Goodbye!"
+            			echo ""
+            			exit 0;;
+        		*)
+            			echo "Invalid input. Please enter yes/y or no/n."
+            			echo ""
+            			;;
+    		esac
 	done
 done
