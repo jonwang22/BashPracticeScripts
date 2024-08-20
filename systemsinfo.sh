@@ -56,53 +56,118 @@ function top_cpu_processes () {
 }
 
 # For Network Connectivity, we grab user input for website or IP address and assign it to a variable. use that variable in ping command, grab the output which should be the last line of the ping output and just output that. Not sure if we need to use redirection or not. Will need to refamiliarize myself with the output format.
+function validate_website () {
+	local input=$1
+	
+	# Regex for IP Address and Domain address
+	# IP Octet regex is specifying the specific range that is possible for the octet. Min is 0 and max is 255.
+	# IP regex takes the IP Octet pattern and replicates that as the pattern we're looking for in the user input to validate if its a valid IP or not.
+	local ip_octet="([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])"
+	local ip_regex="^$ip_octet\.$ip_octet\.$ip_octet\.$ip_octet$"
+	local domain_regex="^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$"
+	# Check if input is a valid IP address or website
+	if [[ $input =~ $ip_regex ]]; then
+		# Check if IP is pingable
+		if ping -c 1 -W 1 $input &> /dev/null; then
+			echo "Valid IP address and reachable."
+			return 0
+		else
+			echo "IP address is unreachable."
+			return 1
+		fi
+	elif [[ $input =~ $domain_regex ]]; then
+		# Check if domain is valid
+		if nslookup $input &> /dev/null; then
+			echo "Valid domain name and is resolveable."
+			return 0
+		else
+			echo "Invalid domain name. Unable to resolve."
+			return 1
+		fi
+	else 
+		echo "Invalid input. Please enter a valid IP address or valid domain URL."
+		return 1
+	fi
+}
+
 function network_connect () {
-	echo "Please enter the website you want to check or the IP Address."
-	read website
+	read -p "Enter a website or IP address: " website
+	echo "Checking validity of website or IP address....."
 	echo ""
-	echo "Please wait, checking connection..."
-	echo ""
-	ping_output=$(ping $website -c 10)
-	packet_loss=$(echo "$ping_output" | grep -i "packet loss" | awk -F "," '{gsub(/^ */, "", $3); print $3}')
-	time=$(echo "$ping_output" | tail -1 | awk -F "/" '{print $5}')
-	echo "It took $time ms to connect to '$website' and there was $packet_loss."
+	if validate_website $website; then
+		echo ""
+		echo "Proceeding with network connectivity check..."
+		echo ""
+		ping_output=$(ping $website -c 10)
+        	packet_loss=$(echo "$ping_output" | grep -i "packet loss" | awk -F "," '{gsub(/^ */, "", $3); print $3}')
+        	time=$(echo "$ping_output" | tail -1 | awk -F "/" '{print $5}')
+        	echo "It took $time ms to connect to '$website' and there was $packet_loss."
+	else
+		echo ""
+		echo "Invalid input. Exiting network connectivity check."
+	fi
 }
 
 
 # First we need a prompt that displays the menu of selections.
-
-echo "##################################################################"
-echo "|                                                                |"
-echo "|Hi there, please select what you'd like to check on your system.|"
-echo "|                                                                |"
-echo "##################################################################"
-echo "Systems Info Menu:"
-echo ""
-echo "1) IP Addresses"
-echo "2) Current User"
-echo "3) CPU Information"
-echo "4) Memory Information"
-echo "5) Top 5 Memory Processes"
-echo "6) Top 5 CPU Processes"
-echo "7) Network Connectivity"
-read selection
-echo ""
+while true; do
+	echo "##################################################################"
+	echo "|                                                                |"
+	echo "|Hi there, please select what you'd like to check on your system.|"
+	echo "|                                                                |"
+	echo "##################################################################"
+	echo "Systems Info Menu:"
+	echo ""
+	echo "1) IP Addresses"
+	echo "2) Current User"
+	echo "3) CPU Information"
+	echo "4) Memory Information"
+	echo "5) Top 5 Memory Processes"
+	echo "6) Top 5 CPU Processes"
+	echo "7) Network Connectivity"
+	echo "8) EXIT"
+	read selection
+	echo ""
 
 # Once we have our prompt, we'll need to build a function that handles the user input. We will most like use a case statement here to handle all the different options
-case $selection in
-	1)
-		check_ip;;
-	2)
-		check_user;;
-	3)
-		cpu_info;;
-	4)
-		mem_info;;
-	5)
-		top_mem_processes;;
-	6)
-		top_cpu_processes;;
-	7)
-		network_connect;;
-esac
-echo ""
+	case $selection in
+		1)
+			check_ip;;
+		2)
+			check_user;;
+		3)
+			cpu_info;;
+		4)
+			mem_info;;
+		5)
+			top_mem_processes;;
+		6)
+			top_cpu_processes;;
+		7)
+			network_connect;;
+		8 | "EXIT" | "Exit" | "exit" | "e" | "QUIT" | "Quit" | "quit" | "q")
+			echo "Have a great day! Goodbye!"
+			exit 0;;
+		*)
+			echo "Sorry, I don't know that action, please select an option from the menu provided."
+	esac
+	echo ""
+        while true; do
+	        echo "Do you want to check another system resource? (yes/no)"
+                read check_again
+
+                if [[ $check_again == "yes" || $check_again == "y" ]];
+                then
+                        break
+                elif [[ $check_again == "no" || $check_again == "n" ]];
+                then
+                        echo ""
+			echo "Have a great day! Goodbye!"
+                        echo ""
+			exit 0
+                else
+			echo "Invalid input. Please enter yes/y or no/n."
+			echo ""
+                fi
+	done
+done
