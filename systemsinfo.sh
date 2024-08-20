@@ -16,6 +16,80 @@
 
 # Before we have any executions, we will create our functions here for each of the different options.
 
+# Creating menu select function
+function display_menu () {
+        echo "##################################################################"
+        echo "|                                                                |"
+        echo "|Hi there, please select what you'd like to check on your system.|"
+        echo "|                                                                |"
+        echo "##################################################################"
+        echo "Systems Info Menu:"
+        echo ""
+        echo "1) IP Addresses"
+        echo "2) Current User"
+        echo "3) CPU Information"
+        echo "4) Memory Information"
+        echo "5) Top 5 Memory Processes"
+        echo "6) Top 5 CPU Processes"
+        echo "7) Network Connectivity"
+        echo "8) EXIT"
+        read selection
+        echo ""
+}
+
+# Creating menu select case function
+function menu_selection () {
+	case $selection in
+                1)
+                        check_ip;;
+                2)
+                        check_user;;
+                3)
+                        cpu_info;;
+                4)
+                        mem_info;;
+                5)
+                        top_mem_processes;;
+                6)
+                        top_cpu_processes;;
+                7)
+                        network_connect;;
+                8 | "EXIT" | "Exit" | "exit" | "e" | "QUIT" | "Quit" | "quit" | "q")
+                        echo ""
+			echo "Have a great day! Goodbye!"
+			echo ""
+                        exit 0;;
+                *)
+                        echo "Sorry, I don't know that action, please select an option from the menu provided."
+			echo ""
+                        return 1
+        esac
+	return 0
+}
+
+# Creating function for checking with user if they want to continue checking their system
+function system_recheck () {
+	while true; do
+                echo "Do you want to check another system resource? (yes/no)"
+                read check_again
+
+                case $check_again in
+                        YES|Yes|yes|y)
+                                echo ""
+                                break;;
+                        NO|No|no|n)
+                                echo ""
+                                echo "Have a great day! Goodbye!"
+                                echo ""
+                                exit 0;;
+                        *)
+                                echo "Invalid input. Please enter yes/y or no/n."
+                                echo ""
+                                ;;
+                esac
+        done
+}
+
 # For the IP Address, we will need an echo statement and two variables. These two variables for Private and Public IP Addresses. There should be a command we can run that will give this to us and we will then need to isolate that output and assign it to the variables for the output for the user.
 function check_ip () {
 	private_ip=$(ifconfig | grep inet | head -1 | awk '{print $2}')
@@ -109,67 +183,12 @@ function network_connect () {
 }
 
 
-# First we need a prompt that displays the menu of selections.
+# Main Script Loop
 while true; do
-	echo "##################################################################"
-	echo "|                                                                |"
-	echo "|Hi there, please select what you'd like to check on your system.|"
-	echo "|                                                                |"
-	echo "##################################################################"
-	echo "Systems Info Menu:"
+	display_menu
+	if ! menu_selection; then
+		continue
+	fi
 	echo ""
-	echo "1) IP Addresses"
-	echo "2) Current User"
-	echo "3) CPU Information"
-	echo "4) Memory Information"
-	echo "5) Top 5 Memory Processes"
-	echo "6) Top 5 CPU Processes"
-	echo "7) Network Connectivity"
-	echo "8) EXIT"
-	read selection
-	echo ""
-
-# Once we have our prompt, we'll need to build a function that handles the user input. We will most like use a case statement here to handle all the different options
-	case $selection in
-		1)
-			check_ip;;
-		2)
-			check_user;;
-		3)
-			cpu_info;;
-		4)
-			mem_info;;
-		5)
-			top_mem_processes;;
-		6)
-			top_cpu_processes;;
-		7)
-			network_connect;;
-		8 | "EXIT" | "Exit" | "exit" | "e" | "QUIT" | "Quit" | "quit" | "q")
-			echo "Have a great day! Goodbye!"
-			exit 0;;
-		*)
-			echo "Sorry, I don't know that action, please select an option from the menu provided."
-			continue
-	esac
-	echo ""
-        while true; do
-	        echo "Do you want to check another system resource? (yes/no)"
-                read check_again
-		
-		case $check_again in
-        		YES|Yes|yes|y)
-				echo ""
-            			break;;
-        		NO|No|no|n)
-			        echo ""
-            			echo "Have a great day! Goodbye!"
-            			echo ""
-            			exit 0;;
-        		*)
-            			echo "Invalid input. Please enter yes/y or no/n."
-            			echo ""
-            			;;
-    		esac
-	done
+	system_recheck
 done
