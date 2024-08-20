@@ -59,7 +59,9 @@ function top_cpu_processes () {
 function network_connect () {
 	echo "Please enter the website you want to check or the IP Address."
 	read website
+	echo ""
 	echo "Please wait, checking connection..."
+	echo ""
 	ping_output=$(ping $website -c 10)
 	packet_loss=$(echo "$ping_output" | grep -i "packet loss" | awk -F "," '{gsub(/^ */, "", $3); print $3}')
 	time=$(echo "$ping_output" | tail -1 | awk -F "/" '{print $5}')
@@ -67,15 +69,13 @@ function network_connect () {
 }
 
 
-### WILL DELETE LATER, TESTING FUNCTIONS FOR NOW.
-network_connect
-
 # First we need a prompt that displays the menu of selections.
 
-echo ""
-echo ""
-echo "Hi there, please select what you'd like to check on your system."
-echo ""
+echo "##################################################################"
+echo "|                                                                |"
+echo "|Hi there, please select what you'd like to check on your system.|"
+echo "|                                                                |"
+echo "##################################################################"
 echo "Systems Info Menu:"
 echo ""
 echo "1) IP Addresses"
@@ -85,10 +85,24 @@ echo "4) Memory Information"
 echo "5) Top 5 Memory Processes"
 echo "6) Top 5 CPU Processes"
 echo "7) Network Connectivity"
+read selection
 echo ""
-echo ""
-# read selection
 
 # Once we have our prompt, we'll need to build a function that handles the user input. We will most like use a case statement here to handle all the different options
-
-
+case $selection in
+	1)
+		check_ip;;
+	2)
+		check_user;;
+	3)
+		cpu_info;;
+	4)
+		mem_info;;
+	5)
+		top_mem_processes;;
+	6)
+		top_cpu_processes;;
+	7)
+		network_connect;;
+esac
+echo ""
